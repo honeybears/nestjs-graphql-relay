@@ -274,25 +274,6 @@ query {
 
 ---
 
-## @EdgeLoader Decorator
-
-Works similarly to `@NodeLoader` — marks a method as an edge loader so it is automatically discovered and registered in the EdgeLoader registry.
-
-```ts
-import { EdgeLoader } from 'nestjs-graphql-relay';
-import { UserEdge } from './user-connection.type';
-
-@Resolver(() => UserConnection)
-export class UserConnectionResolver {
-  @EdgeLoader(() => UserEdge)
-  async loadEdges(args: ConnectionArgs) {
-    return this.service.execute(args);
-  }
-}
-```
-
----
-
 ## API Reference
 
 ### Module
@@ -325,7 +306,6 @@ export class UserConnectionResolver {
 | API | Description |
 |-----|-------------|
 | `@NodeLoader(() => Type)` | Registers a method as the `node(id)` query handler for a type |
-| `@EdgeLoader(() => Type)` | Registers a method as an edge loader for a type |
 
 ### Abstract Services
 
