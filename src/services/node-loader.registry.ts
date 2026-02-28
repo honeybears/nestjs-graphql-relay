@@ -39,10 +39,10 @@ export class NodeLoaderRegistry {
     return this.nodeLoaders.get(typeName);
   }
 
-  getObjectTypeName(traget: Type): string {
+  getObjectTypeName(target: Type): string {
     const objecTypes =
-      TypeMetadataStorage.getObjectTypeMetadataByTarget(traget);
+      TypeMetadataStorage.getObjectTypeMetadataByTarget(target);
 
-    return objecTypes?.name ?? traget.name;
+    return objecTypes?.name ?? target.name;
   }
 }
