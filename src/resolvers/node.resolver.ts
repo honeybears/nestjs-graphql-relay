@@ -1,4 +1,4 @@
-import { Query, Args, Resolver } from '@nestjs/graphql';
+import { Query, Args, Resolver, ID } from '@nestjs/graphql';
 import { NodeInterface } from 'src/interfaces/node.interface';
 import { GlobalIdStrategyRegistry } from 'src/services/global-id.registry';
 import { GlobalIdStrategy } from 'src/services/global-id.strategy';
@@ -16,7 +16,7 @@ export class NodeResolver {
   }
 
   @Query(() => NodeInterface, { name: 'node', nullable: true })
-  async node(@Args('id') id: string): Promise<any> {
+  async node(@Args({ name: 'id', type: () => ID }) id: string): Promise<any> {
     const globalId = this.globalIdStrategyRegistry.get().parse(id);
     const nodeLoader = this.nodeLoaderRegistry.getLoader(globalId.typename);
 
