@@ -1,5 +1,5 @@
 {
-  "name": "nestjs-graphql-relay",
+  "name": "@honeybears/nestjs-graphql-relay",
   "version": "1.0.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -8,15 +8,23 @@
   ],
   "scripts": {
     "build": "rimraf dist && tsc",
-    "prepareBuildOnly": "npm run build",
+    "prepublishOnly": "npm run test:all && npm run build",
     "test": "jest --testPathIgnorePatterns=e2e",
     "test:e2e": "jest --config jest.e2e.config.js",
     "test:all": "npm run test && npm run test:e2e"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "keywords": [
+    "nestjs",
+    "graphql",
+    "relay",
+    "node-interface",
+    "global-id",
+    "connection",
+    "pagination"
+  ],
+  "author": "honeybears",
+  "license": "MIT",
+  "description": "NestJS library for implementing the Relay specification with the GraphQL code-first approach",
   "devDependencies": {
     "@apollo/server": "^5.4.0",
     "@as-integrations/express5": "^1.1.2",
