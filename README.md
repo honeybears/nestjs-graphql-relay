@@ -28,20 +28,15 @@ npm install @nestjs/common @nestjs/core @nestjs/graphql graphql reflect-metadata
 ### 1. Register the Module
 
 Register `GraphQLRelayModule.forRoot()` in your root module.
-All ObjectType classes that implement the Node interface must be listed in the `types` option.
 
 ```ts
 // app.module.ts
 import { GraphQLRelayModule } from 'nestjs-graphql-relay';
-import { User } from './user/user.entity';
-import { Post } from './post/post.entity';
 
 @Module({
   imports: [
     GraphQLModule.forRoot({ ... }),
-    GraphQLRelayModule.forRoot({
-      types: [User, Post],
-    }),
+    GraphQLRelayModule.forRoot({}),
   ],
 })
 export class AppModule {}
@@ -76,20 +71,20 @@ export class User extends NodeInterface {
 Registers the method that handles `node(id: ID!)` queries for a given type.
 The decorated method receives a **raw database id (string)** and must return an instance of the corresponding type.
 
+Place `@NodeLoader` on a method of any NestJS injectable (typically a service).
+The module uses `DiscoveryService` to automatically find all registered loaders at startup.
+
 ```ts
-// user.resolver.ts
-import { Resolver } from '@nestjs/graphql';
+// user.service.ts
+import { Injectable } from '@nestjs/common';
 import { NodeLoader } from 'nestjs-graphql-relay';
 import { User } from './user.entity';
-import { UserService } from './user.service';
 
-@Resolver(() => User)
-export class UserResolver {
-  constructor(private readonly userService: UserService) {}
-
+@Injectable()
+export class UserService {
   @NodeLoader(() => User)
-  async loadUser(id: string): Promise<User | null> {
-    return this.userService.findById(id);
+  async findById(id: string): Promise<User | null> {
+    // return user by raw database id
   }
 }
 ```
@@ -143,7 +138,6 @@ export class UuidGlobalIdStrategy implements GlobalIdStrategy {
 ```ts
 // app.module.ts
 GraphQLRelayModule.forRoot({
-  types: [User, Post],
   globalIdStrategy: new UuidGlobalIdStrategy(),
 }),
 ```
@@ -280,8 +274,7 @@ query {
 
 | API | Description |
 |-----|-------------|
-| `GraphQLRelayModule.forRoot(options)` | Initialize the module |
-| `options.types` | Array of ObjectType classes that implement the Node interface (required) |
+| `GraphQLRelayModule.forRoot(options?)` | Initialize the module |
 | `options.globalIdStrategy` | Custom Global ID strategy (optional, defaults to Base64) |
 
 ### Interfaces & Types
@@ -319,6 +312,47 @@ query {
 |-----|-------------|
 | `GlobalIdStrategy` | Interface for a custom Global ID strategy |
 | `DefaultGlobalIdStrategy` | Built-in Base64 strategy using `typename:id` format |
+
+---
+
+## Testing
+
+Run the unit tests:
+
+```bash
+npm test
+```
+
+Run the e2e tests:
+
+```bash
+npm run test:e2e
+```
+
+### E2E Test Structure
+
+Each e2e spec defines its own `AppModule` inline with only the providers it needs, so specs are fully isolated from one another.
+
+```
+e2e/
+├── fixtures/                          # Shared entities, services, and resolvers
+│   ├── user.entity.ts / .service.ts / .resolver.ts
+│   ├── post.entity.ts / .service.ts / .resolver.ts
+│   ├── comment.entity.ts / .service.ts / .resolver.ts
+│   ├── alert.entity.ts
+│   ├── timestamped.interface.ts
+│   ├── search-result.union.ts
+│   ├── notification.union.ts
+│   └── union.resolver.ts
+└── specs/
+    ├── node-interface.e2e-spec.ts     # node(id) query resolution
+    ├── global-id.e2e-spec.ts          # Global ID encode/decode
+    ├── integration.e2e-spec.ts        # Regular queries and nested relationships
+    ├── error-handling.e2e-spec.ts     # Invalid IDs and missing types
+    ├── multiple-interfaces.e2e-spec.ts  # ObjectType implementing multiple interfaces
+    ├── union-types.e2e-spec.ts        # Union type resolution
+    └── schema.e2e-spec.ts             # GraphQL schema introspection
+```
 
 ---
 
