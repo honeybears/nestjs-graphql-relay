@@ -1,6 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { GRAPHQL_RELAY_MODULE_OPTIONS } from 'src/graphql-relay.module';
-import { GraphQLRelayModuleOptions } from 'src/graphql-relay.module';
+import { Injectable } from '@nestjs/common';
 import { TypeMetadataStorage } from '@nestjs/graphql/dist/schema-builder/storages/type-metadata.storage';
 import { Type } from '@nestjs/common';
 
@@ -14,15 +12,14 @@ export interface NodeLoaderWrapper {
 export class NodeLoaderRegistry {
   private readonly nodeLoaders: Map<string, NodeLoaderWrapper> = new Map();
 
-  constructor(
-    @Inject(GRAPHQL_RELAY_MODULE_OPTIONS)
-    private readonly options: GraphQLRelayModuleOptions,
-  ) {}
-
   register(nodeLoader: NodeLoaderWrapper) {
-    const { types } = this.options;
+    const typeMetadatas = TypeMetadataStorage.getObjectTypesMetadata();
 
-    if (!types.includes(nodeLoader.type)) {
+    if (
+      !typeMetadatas.some(
+        typeMetadata => typeMetadata.target === nodeLoader.type,
+      )
+    ) {
       throw new Error(`Type ${nodeLoader.type.name} not found in options`);
     }
 

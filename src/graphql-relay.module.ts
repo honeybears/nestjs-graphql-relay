@@ -8,7 +8,7 @@ import { NodeLoaderRegistry } from './services/node-loader.registry';
 
 @Module({})
 export class GraphQLRelayModule {
-  static forRoot(options: GraphQLRelayModuleOptions): DynamicModule {
+  static forRoot(options?: GraphQLRelayModuleOptions): DynamicModule {
     return {
       global: true,
       module: GraphQLRelayModule,
@@ -20,17 +20,16 @@ export class GraphQLRelayModule {
         },
         {
           provide: GlobalIdStrategyRegistry,
-          useFactory: (opts: GraphQLRelayModuleOptions) => {
+          useFactory: (opts?: GraphQLRelayModuleOptions) => {
             return new GlobalIdStrategyRegistry(opts);
           },
           inject: [GRAPHQL_RELAY_MODULE_OPTIONS],
         },
         {
           provide: NodeLoaderRegistry,
-          useFactory: (opts: GraphQLRelayModuleOptions) => {
-            return new NodeLoaderRegistry(opts);
+          useFactory: () => {
+            return new NodeLoaderRegistry();
           },
-          inject: [GRAPHQL_RELAY_MODULE_OPTIONS],
         },
         NodeLoaderExplorer,
         NodeResolver,
@@ -48,6 +47,5 @@ export class GraphQLRelayModule {
 export const GRAPHQL_RELAY_MODULE_OPTIONS = 'GRAPHQL_RELAY_MODULE_OPTIONS';
 
 export interface GraphQLRelayModuleOptions {
-  types: Function[];
   globalIdStrategy?: GlobalIdStrategy;
 }

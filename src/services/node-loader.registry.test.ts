@@ -27,15 +27,20 @@ describe('NodeLoaderRegistry', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (
+      TypeMetadataStorage.getObjectTypesMetadata as jest.Mock
+    ).mockReturnValue([
+      { target: UserNode },
+      { target: PostNode },
+      { target: CustomNameNode },
+    ]);
+    (
       TypeMetadataStorage.getObjectTypeMetadataByTarget as jest.Mock
     ).mockReturnValue(undefined);
   });
 
   describe('register', () => {
     it('should register a node loader successfully', () => {
-      registry = new NodeLoaderRegistry({
-        types: [UserNode],
-      });
+      registry = new NodeLoaderRegistry();
 
       expect(() => {
         registry.register({
@@ -47,9 +52,11 @@ describe('NodeLoaderRegistry', () => {
     });
 
     it('should throw error when type is not in options', () => {
-      registry = new NodeLoaderRegistry({
-        types: [UserNode],
-      });
+      (
+        TypeMetadataStorage.getObjectTypesMetadata as jest.Mock
+      ).mockReturnValue([]);
+
+      registry = new NodeLoaderRegistry();
 
       expect(() => {
         registry.register({
@@ -61,9 +68,7 @@ describe('NodeLoaderRegistry', () => {
     });
 
     it('should throw error when duplicate loader is registered', () => {
-      registry = new NodeLoaderRegistry({
-        types: [UserNode],
-      });
+      registry = new NodeLoaderRegistry();
 
       registry.register({
         type: UserNode,
@@ -81,9 +86,7 @@ describe('NodeLoaderRegistry', () => {
     });
 
     it('should allow registering multiple different types', () => {
-      registry = new NodeLoaderRegistry({
-        types: [UserNode, PostNode],
-      });
+      registry = new NodeLoaderRegistry();
 
       registry.register({
         type: UserNode,
@@ -107,9 +110,7 @@ describe('NodeLoaderRegistry', () => {
         name: 'User',
       });
 
-      registry = new NodeLoaderRegistry({
-        types: [UserNode],
-      });
+      registry = new NodeLoaderRegistry();
 
       const loader = {
         type: UserNode,
@@ -128,9 +129,7 @@ describe('NodeLoaderRegistry', () => {
 
   describe('getLoader', () => {
     beforeEach(() => {
-      registry = new NodeLoaderRegistry({
-        types: [UserNode, PostNode],
-      });
+      registry = new NodeLoaderRegistry();
     });
 
     it('should return registered loader by type name', () => {
@@ -184,9 +183,7 @@ describe('NodeLoaderRegistry', () => {
         return undefined;
       });
 
-      registry = new NodeLoaderRegistry({
-        types: [UserNode, PostNode],
-      });
+      registry = new NodeLoaderRegistry();
 
       const userLoader = {
         type: UserNode,
@@ -211,9 +208,7 @@ describe('NodeLoaderRegistry', () => {
 
   describe('getObjectTypeName', () => {
     beforeEach(() => {
-      registry = new NodeLoaderRegistry({
-        types: [],
-      });
+      registry = new NodeLoaderRegistry();
     });
 
     it('should return GraphQL ObjectType name when available', () => {
@@ -280,9 +275,7 @@ describe('NodeLoaderRegistry', () => {
         name: 'User',
       });
 
-      registry = new NodeLoaderRegistry({
-        types: [UserNode],
-      });
+      registry = new NodeLoaderRegistry();
 
       registry.register({
         type: UserNode,
@@ -312,9 +305,7 @@ describe('NodeLoaderRegistry', () => {
         return undefined;
       });
 
-      registry = new NodeLoaderRegistry({
-        types: [UserNode, PostNode],
-      });
+      registry = new NodeLoaderRegistry();
 
       const userLoader = {
         type: UserNode,

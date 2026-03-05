@@ -2,7 +2,7 @@ import { DiscoveryService } from '@nestjs/core';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import {
   NODE_LOADER_METADATA,
-  NodeLoaderMetadata,
+  NodeLoaderTargetType,
 } from 'src/decorators/node-loader.decorator';
 import { MetadataScanner } from '@nestjs/core';
 import { Reflector } from '@nestjs/core';
@@ -26,13 +26,16 @@ export class NodeLoaderExplorer implements OnModuleInit {
       this.metadataScanner
         .getAllMethodNames(Object.getPrototypeOf(instance))
         .forEach(methodName => {
-          const metadata = this.reflector.get<NodeLoaderMetadata>(
+          const nodeLoaderTargetType = this.reflector.get<NodeLoaderTargetType>(
             NODE_LOADER_METADATA,
             instance[methodName],
           );
-          if (metadata) {
+          if (nodeLoaderTargetType) {
             this.nodeLoaderRegistry.register({
-              type: metadata(),
+              type:
+                typeof nodeLoaderTargetType === 'function'
+                  ? nodeLoaderTargetType()
+                  : nodeLoaderTargetType,
               instance: instance,
               methodName,
             });

@@ -13,9 +13,9 @@ export class GlobalIdStrategyRegistry {
   private strategy: GlobalIdStrategy;
   constructor(
     @Inject(GRAPHQL_RELAY_MODULE_OPTIONS)
-    options: GraphQLRelayModuleOptions,
+    options?: GraphQLRelayModuleOptions,
   ) {
-    this.strategy = options.globalIdStrategy ?? new DefaultGlobalIdStrategy();
+    this.strategy = options?.globalIdStrategy ?? new DefaultGlobalIdStrategy();
   }
 
   get(): GlobalIdStrategy {

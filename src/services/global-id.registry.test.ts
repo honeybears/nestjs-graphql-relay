@@ -4,9 +4,7 @@ import { DefaultGlobalIdStrategy } from './global-id.strategy';
 describe('GlobalIdStrategyRegistry', () => {
   describe('with default strategy', () => {
     it('should use DefaultGlobalIdStrategy when no custom strategy provided', () => {
-      const registry = new GlobalIdStrategyRegistry({
-        types: [],
-      });
+      const registry = new GlobalIdStrategyRegistry({});
 
       const strategy = registry.get();
       expect(strategy).toBeInstanceOf(DefaultGlobalIdStrategy);
@@ -21,7 +19,6 @@ describe('GlobalIdStrategyRegistry', () => {
       };
 
       const registry = new GlobalIdStrategyRegistry({
-        types: [],
         globalIdStrategy: customStrategy,
       });
 
@@ -32,9 +29,7 @@ describe('GlobalIdStrategyRegistry', () => {
 
   describe('set', () => {
     it('should update strategy', () => {
-      const registry = new GlobalIdStrategyRegistry({
-        types: [],
-      });
+      const registry = new GlobalIdStrategyRegistry({});
 
       const newStrategy = {
         parse: jest.fn(),
