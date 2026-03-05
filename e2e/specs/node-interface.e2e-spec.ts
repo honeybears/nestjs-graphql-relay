@@ -9,7 +9,7 @@ import { UserService } from '../fixtures/user.service';
 import { UserResolver } from '../fixtures/user.resolver';
 import { PostService } from '../fixtures/post.service';
 import { PostResolver } from '../fixtures/post.resolver';
-import { globalIdStrategy } from './setup';
+import { DefaultGlobalIdStrategy } from '../../src/services/global-id.strategy';
 
 @Module({
   imports: [
@@ -41,7 +41,7 @@ describe('Node Interface Query (e2e)', () => {
   });
 
   it('should query a User node by global ID', async () => {
-    const globalId = globalIdStrategy.serialize('User', '1');
+    const globalId = new DefaultGlobalIdStrategy().serialize('User', '1');
 
     const response = await request(app.getHttpServer())
       .post('/graphql')
@@ -70,7 +70,7 @@ describe('Node Interface Query (e2e)', () => {
   });
 
   it('should query a Post node by global ID', async () => {
-    const globalId = globalIdStrategy.serialize('PostNode', '1');
+    const globalId = new DefaultGlobalIdStrategy().serialize('PostNode', '1');
 
     const response = await request(app.getHttpServer())
       .post('/graphql')
@@ -104,7 +104,7 @@ describe('Node Interface Query (e2e)', () => {
   });
 
   it('should return null for non-existent node', async () => {
-    const globalId = globalIdStrategy.serialize('User', '999');
+    const globalId = new DefaultGlobalIdStrategy().serialize('User', '999');
 
     const response = await request(app.getHttpServer())
       .post('/graphql')
@@ -143,8 +143,11 @@ describe('Node Interface Query (e2e)', () => {
   });
 
   it('should query multiple nodes sequentially', async () => {
-    const userGlobalId = globalIdStrategy.serialize('User', '1');
-    const postGlobalId = globalIdStrategy.serialize('PostNode', '2');
+    const userGlobalId = new DefaultGlobalIdStrategy().serialize('User', '1');
+    const postGlobalId = new DefaultGlobalIdStrategy().serialize(
+      'PostNode',
+      '2',
+    );
 
     const userResponse = await request(app.getHttpServer())
       .post('/graphql')

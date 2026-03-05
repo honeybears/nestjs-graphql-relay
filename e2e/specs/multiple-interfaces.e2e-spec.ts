@@ -8,7 +8,7 @@ import { GraphQLRelayModule } from '../../src/graphql-relay.module';
 import { UserService } from '../fixtures/user.service';
 import { CommentService } from '../fixtures/comment.service';
 import { CommentResolver } from '../fixtures/comment.resolver';
-import { globalIdStrategy } from './setup';
+import { DefaultGlobalIdStrategy } from '../../src/services/global-id.strategy';
 
 @Module({
   imports: [
@@ -40,7 +40,7 @@ describe('Multiple Interface Inheritance (e2e)', () => {
   });
 
   it('should query a Comment node by global ID (implements Node + Timestamped)', async () => {
-    const globalId = globalIdStrategy.serialize('Comment', '1');
+    const globalId = new DefaultGlobalIdStrategy().serialize('Comment', '1');
 
     const response = await request(app.getHttpServer())
       .post('/graphql')
@@ -72,7 +72,7 @@ describe('Multiple Interface Inheritance (e2e)', () => {
   });
 
   it('should resolve Comment as Node interface', async () => {
-    const globalId = globalIdStrategy.serialize('Comment', '2');
+    const globalId = new DefaultGlobalIdStrategy().serialize('Comment', '2');
 
     const response = await request(app.getHttpServer())
       .post('/graphql')
@@ -94,7 +94,7 @@ describe('Multiple Interface Inheritance (e2e)', () => {
   });
 
   it('should resolve nested author on Comment via node query', async () => {
-    const globalId = globalIdStrategy.serialize('Comment', '1');
+    const globalId = new DefaultGlobalIdStrategy().serialize('Comment', '1');
 
     const response = await request(app.getHttpServer())
       .post('/graphql')
@@ -138,8 +138,7 @@ describe('Multiple Interface Inheritance (e2e)', () => {
       })
       .expect(200);
 
-    const interfaces: { name: string }[] =
-      response.body.data.__type.interfaces;
+    const interfaces: { name: string }[] = response.body.data.__type.interfaces;
     expect(interfaces.find(i => i.name === 'Node')).toBeDefined();
     expect(interfaces.find(i => i.name === 'Timestamped')).toBeDefined();
   });
@@ -196,7 +195,7 @@ describe('Multiple Interface Inheritance (e2e)', () => {
   });
 
   it('should return null for non-existent Comment node', async () => {
-    const globalId = globalIdStrategy.serialize('Comment', '999');
+    const globalId = new DefaultGlobalIdStrategy().serialize('Comment', '999');
 
     const response = await request(app.getHttpServer())
       .post('/graphql')

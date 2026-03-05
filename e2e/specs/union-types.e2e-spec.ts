@@ -12,7 +12,7 @@ import { PostResolver } from '../fixtures/post.resolver';
 import { CommentService } from '../fixtures/comment.service';
 import { CommentResolver } from '../fixtures/comment.resolver';
 import { UnionResolver } from '../fixtures/union.resolver';
-import { globalIdStrategy } from './setup';
+import { DefaultGlobalIdStrategy } from '../../src/services/global-id.strategy';
 
 @Module({
   imports: [
@@ -144,7 +144,7 @@ describe('Union Types (e2e)', () => {
     });
 
     it('node(id) should resolve correctly for types accessed through a union', async () => {
-      const userGlobalId = globalIdStrategy.serialize('User', '1');
+      const userGlobalId = new DefaultGlobalIdStrategy().serialize('User', '1');
 
       const [nodeResponse, searchResponse] = await Promise.all([
         request(app.getHttpServer())
@@ -276,7 +276,10 @@ describe('Union Types (e2e)', () => {
     });
 
     it('Comment (Node) members in a union should still be resolvable via node(id)', async () => {
-      const commentGlobalId = globalIdStrategy.serialize('Comment', '1');
+      const commentGlobalId = new DefaultGlobalIdStrategy().serialize(
+        'Comment',
+        '1',
+      );
 
       const [notifResponse, nodeResponse] = await Promise.all([
         request(app.getHttpServer())
@@ -349,9 +352,7 @@ describe('Union Types (e2e)', () => {
       const commentType = type.possibleTypes.find(
         (t: any) => t.name === 'Comment',
       );
-      const alertType = type.possibleTypes.find(
-        (t: any) => t.name === 'Alert',
-      );
+      const alertType = type.possibleTypes.find((t: any) => t.name === 'Alert');
 
       const commentInterfaces = commentType.interfaces.map((i: any) => i.name);
       expect(commentInterfaces).toContain('Node');

@@ -9,7 +9,7 @@ import { UserService } from '../fixtures/user.service';
 import { UserResolver } from '../fixtures/user.resolver';
 import { PostService } from '../fixtures/post.service';
 import { PostResolver } from '../fixtures/post.resolver';
-import { globalIdStrategy } from './setup';
+import { DefaultGlobalIdStrategy } from '../../src/services/global-id.strategy';
 
 @Module({
   imports: [
@@ -41,7 +41,10 @@ describe('Error Handling (e2e)', () => {
   });
 
   it('should return error for non-existent type', async () => {
-    const globalId = globalIdStrategy.serialize('NonExistent', '1');
+    const globalId = new DefaultGlobalIdStrategy().serialize(
+      'NonExistent',
+      '1',
+    );
 
     const response = await request(app.getHttpServer())
       .post('/graphql')

@@ -1,12 +1,12 @@
-import { globalIdStrategy } from './setup';
+import { DefaultGlobalIdStrategy } from '../../src/services/global-id.strategy';
 
 describe('Global ID Strategy (e2e)', () => {
   it('should correctly encode and decode global IDs', () => {
     const typename = 'User';
     const id = '123';
 
-    const encoded = globalIdStrategy.serialize(typename, id);
-    const decoded = globalIdStrategy.parse(encoded);
+    const encoded = new DefaultGlobalIdStrategy().serialize(typename, id);
+    const decoded = new DefaultGlobalIdStrategy().parse(encoded);
 
     expect(decoded).toEqual({ typename, id });
   });
@@ -15,8 +15,8 @@ describe('Global ID Strategy (e2e)', () => {
     const typename = 'User';
     const id = 'abc-123-xyz';
 
-    const encoded = globalIdStrategy.serialize(typename, id);
-    const decoded = globalIdStrategy.parse(encoded);
+    const encoded = new DefaultGlobalIdStrategy().serialize(typename, id);
+    const decoded = new DefaultGlobalIdStrategy().parse(encoded);
 
     expect(decoded).toEqual({ typename, id });
   });
