@@ -4,7 +4,6 @@ A library for implementing the [Relay specification](https://relay.dev/graphql/c
 
 - **Node interface** & automatic Global ID handling
 - **`node(id)` query** auto-registration
-- **Connection / Edge / PageInfo** type factories
 - **`@NodeLoader`** decorator with automatic discovery
 
 ---
@@ -142,129 +141,6 @@ GraphQLRelayModule.forRoot({
 }),
 ```
 
----
-
-## Connection Types
-
-Use the factory functions to generate Relay Connection spec types.
-
-### Edge / Connection Factories
-
-```ts
-// user-connection.type.ts
-import { ObjectType } from '@nestjs/graphql';
-import { Edge, Connection } from 'nestjs-graphql-relay';
-import { User } from './user.entity';
-
-@ObjectType()
-export class UserEdge extends Edge(User) {}
-
-@ObjectType()
-export class UserConnection extends Connection(User) {}
-```
-
-Generated GraphQL schema:
-
-```graphql
-type UserEdge {
-  cursor: String!
-  node: User
-}
-
-type UserConnection {
-  edges: [UserEdge]
-  pageInfo: PageInfo
-  totalCount: Int
-}
-
-type PageInfo {
-  hasNextPage: Boolean!
-  hasPreviousPage: Boolean!
-  startCursor: String
-  endCursor: String
-}
-```
-
-### ConnectionArgs
-
-An `ArgsType` that contains pagination arguments: `first`, `after`, `last`, `before`.
-
-```ts
-import { ConnectionArgs } from 'nestjs-graphql-relay';
-```
-
-### ConnectionService
-
-An abstract class for implementing connection query logic.
-
-```ts
-// user-connection.service.ts
-import { Injectable } from '@nestjs/common';
-import { ConnectionService, ConnectionArgs, ConnectionType } from 'nestjs-graphql-relay';
-import { User } from './user.entity';
-
-@Injectable()
-export class UserConnectionService extends ConnectionService {
-  async execute<T>(args: ConnectionArgs): Promise<ConnectionType<T>> {
-    const { first = 10, after } = args;
-
-    const [items, total] = await this.userRepository.findAndCount({ ... });
-
-    return {
-      edges: items.map((item, i) => ({
-        cursor: Buffer.from(String(i)).toString('base64'),
-        node: item as T,
-      })),
-      pageInfo: {
-        hasNextPage: items.length === first,
-        hasPreviousPage: !!after,
-        startCursor: ...,
-        endCursor: ...,
-      },
-      totalCount: total,
-    } as ConnectionType<T>;
-  }
-}
-```
-
-### Connection Resolver Example
-
-```ts
-// user-connection.resolver.ts
-import { Resolver, Query, Args } from '@nestjs/graphql';
-import { ConnectionArgs } from 'nestjs-graphql-relay';
-import { UserConnection } from './user-connection.type';
-import { UserConnectionService } from './user-connection.service';
-
-@Resolver(() => UserConnection)
-export class UserConnectionResolver {
-  constructor(private readonly service: UserConnectionService) {}
-
-  @Query(() => UserConnection)
-  async users(@Args() args: ConnectionArgs): Promise<UserConnection> {
-    return this.service.execute(args);
-  }
-}
-```
-
-```graphql
-query {
-  users(first: 10, after: "cursor==") {
-    totalCount
-    pageInfo {
-      hasNextPage
-      endCursor
-    }
-    edges {
-      cursor
-      node {
-        id
-        name
-      }
-    }
-  }
-}
-```
 
 ---
 
@@ -282,29 +158,12 @@ query {
 | API | Description |
 |-----|-------------|
 | `NodeInterface` | Abstract class for the Relay Node interface (includes `id: ID!`) |
-| `ConnectionArgs` | ArgsType with `first`, `after`, `last`, `before` fields |
-| `ConnectionType<T>` | Interface with `edges`, `pageInfo`, `totalCount` |
-| `EdgeType<T>` | Interface with `cursor` and `node` |
-| `PageInfo` | Object with `hasNextPage`, `hasPreviousPage`, `startCursor`, `endCursor` |
-
-### Factories
-
-| API | Description |
-|-----|-------------|
-| `Edge(classRef)` | Generates an Edge ObjectType |
-| `Connection(classRef)` | Generates a Connection ObjectType |
 
 ### Decorators
 
 | API | Description |
 |-----|-------------|
 | `@NodeLoader(() => Type)` | Registers a method as the `node(id)` query handler for a type |
-
-### Abstract Services
-
-| API | Description |
-|-----|-------------|
-| `ConnectionService` | Abstract class for connection queries — implement `execute(args)` |
 
 ### Strategies
 
