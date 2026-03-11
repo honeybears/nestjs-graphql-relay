@@ -9,6 +9,7 @@ import { UserService } from '../fixtures/user.service';
 import { UserResolver } from '../fixtures/user.resolver';
 import { PostService } from '../fixtures/post.service';
 import { PostResolver } from '../fixtures/post.resolver';
+import { GlobalIdStrategyRegistry } from 'src/services/global-id.registry';
 
 @Module({
   imports: [
@@ -105,5 +106,47 @@ describe('Integration with Regular Queries (e2e)', () => {
       (u: any) => u.name === 'John Doe',
     );
     expect(johnDoe.posts).toHaveLength(3);
+  });
+
+  it('should query a post by global ID', async () => {
+    const globalId = GlobalIdStrategyRegistry.get().serialize('PostNode', '1');
+    const response = await request(app.getHttpServer())
+      .post('/graphql')
+      .send({
+        query: `
+          query {
+            post(id: "${globalId}") {
+              id
+              title
+              content
+            }
+          }
+        `,
+      })
+      .expect(200);
+
+    expect(response.body.data.post.title).toBe('First Post');
+    expect(response.body.data.post.id).toBe(globalId);
+  });
+
+  it('should query a user by global ID', async () => {
+    const globalId = GlobalIdStrategyRegistry.get().serialize('User', '1');
+    const response = await request(app.getHttpServer())
+      .post('/graphql')
+      .send({
+        query: `
+          query {
+            user(id: "${globalId}") {
+              id
+              name
+              email
+            }
+          }
+        `,
+      })
+      .expect(200);
+
+    expect(response.body.data.user.name).toBe('John Doe');
+    expect(response.body.data.user.id).toBe(globalId);
   });
 });
