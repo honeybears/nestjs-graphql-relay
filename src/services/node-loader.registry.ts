@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { TypeMetadataStorage } from '@nestjs/graphql/dist/schema-builder/storages/type-metadata.storage';
 import { Type } from '@nestjs/common';
+import { getObjectTypeName } from 'src/utils/get-object-type-name';
 
 export interface NodeLoaderWrapper {
   type: Type;
@@ -23,7 +24,7 @@ export class NodeLoaderRegistry {
       throw new Error(`Type ${nodeLoader.type.name} not found in options`);
     }
 
-    const typeName = this.getObjectTypeName(nodeLoader.type);
+    const typeName = getObjectTypeName(nodeLoader.type);
 
     if (this.nodeLoaders.has(typeName)) {
       throw new Error(`Duplicate node loader for type ${nodeLoader.type.name}`);
@@ -34,12 +35,5 @@ export class NodeLoaderRegistry {
 
   getLoader(typeName: string): NodeLoaderWrapper | undefined {
     return this.nodeLoaders.get(typeName);
-  }
-
-  getObjectTypeName(target: Type): string {
-    const objecTypes =
-      TypeMetadataStorage.getObjectTypeMetadataByTarget(target);
-
-    return objecTypes?.name ?? target.name;
   }
 }

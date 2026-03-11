@@ -10,19 +10,17 @@ import {
 
 @Injectable()
 export class GlobalIdStrategyRegistry {
-  private strategy: GlobalIdStrategy;
+  private static strategy: GlobalIdStrategy = new DefaultGlobalIdStrategy();
+
   constructor(
     @Inject(GRAPHQL_RELAY_MODULE_OPTIONS)
     options?: GraphQLRelayModuleOptions,
   ) {
-    this.strategy = options?.globalIdStrategy ?? new DefaultGlobalIdStrategy();
+    GlobalIdStrategyRegistry.strategy =
+      options?.globalIdStrategy ?? new DefaultGlobalIdStrategy();
   }
 
-  get(): GlobalIdStrategy {
-    return this.strategy;
-  }
-
-  set(strategy: GlobalIdStrategy) {
-    this.strategy = strategy;
+  static get(): GlobalIdStrategy {
+    return GlobalIdStrategyRegistry.strategy;
   }
 }
