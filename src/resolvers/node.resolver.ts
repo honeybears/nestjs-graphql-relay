@@ -8,16 +8,13 @@ import { NodeLoaderRegistry } from 'src/services/node-loader.registry';
 export class NodeResolver {
   private readonly globalIdStrategy: GlobalIdStrategy;
 
-  constructor(
-    private readonly globalIdStrategyRegistry: GlobalIdStrategyRegistry,
-    private readonly nodeLoaderRegistry: NodeLoaderRegistry,
-  ) {
-    this.globalIdStrategy = this.globalIdStrategyRegistry.get();
+  constructor(private readonly nodeLoaderRegistry: NodeLoaderRegistry) {
+    this.globalIdStrategy = GlobalIdStrategyRegistry.get();
   }
 
   @Query(() => NodeInterface, { name: 'node', nullable: true })
   async node(@Args({ name: 'id', type: () => ID }) id: string): Promise<any> {
-    const globalId = this.globalIdStrategyRegistry.get().parse(id);
+    const globalId = this.globalIdStrategy.parse(id);
     const nodeLoader = this.nodeLoaderRegistry.getLoader(globalId.typename);
 
     if (!nodeLoader) {
@@ -33,7 +30,6 @@ export class NodeResolver {
     }
 
     return Object.assign(result, {
-      id: this.globalIdStrategy.serialize(globalId.typename, result.id),
       __typename: globalId.typename,
     });
   }

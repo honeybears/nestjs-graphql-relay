@@ -1,10 +1,8 @@
 import { NodeResolver } from './node.resolver';
-import { GlobalIdStrategyRegistry } from 'src/services/global-id.registry';
 import { NodeLoaderRegistry } from 'src/services/node-loader.registry';
 
 describe('NodeResolver', () => {
   let resolver: NodeResolver;
-  let globalIdStrategyRegistry: jest.Mocked<GlobalIdStrategyRegistry>;
   let nodeLoaderRegistry: jest.Mocked<NodeLoaderRegistry>;
   let defaultMockStrategy: any;
 
@@ -14,17 +12,12 @@ describe('NodeResolver', () => {
       serialize: jest.fn(),
     };
 
-    globalIdStrategyRegistry = {
-      get: jest.fn().mockReturnValue(defaultMockStrategy),
-      set: jest.fn(),
-    } as any;
-
     nodeLoaderRegistry = {
       register: jest.fn(),
       getLoader: jest.fn(),
     } as any;
 
-    resolver = new NodeResolver(globalIdStrategyRegistry, nodeLoaderRegistry);
+    resolver = new NodeResolver(nodeLoaderRegistry);
   });
 
   describe('node', () => {
