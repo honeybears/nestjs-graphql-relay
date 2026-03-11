@@ -6,12 +6,14 @@ A library for implementing the [Relay specification](https://relay.dev/graphql/c
 - **`node(id)` query** auto-registration
 - **`@NodeLoader`** decorator with automatic discovery
 
+**GitHub**: [https://github.com/honeybears/nestjs-graphql-relay](https://github.com/honeybears/nestjs-graphql-relay)
+
 ---
 
 ## Installation
 
 ```bash
-npm install nestjs-graphql-relay
+npm install @honeybears/nestjs-graphql-relay
 ```
 
 ### Peer Dependencies
@@ -30,7 +32,7 @@ Register `GraphQLRelayModule.forRoot()` in your root module.
 
 ```ts
 // app.module.ts
-import { GraphQLRelayModule } from 'nestjs-graphql-relay';
+import { GraphQLRelayModule } from '@honeybears/nestjs-graphql-relay';
 
 @Module({
   imports: [
@@ -53,7 +55,7 @@ The `id` field is automatically serialized as a **Global ID**.
 ```ts
 // user.entity.ts
 import { ObjectType, Field } from '@nestjs/graphql';
-import { NodeInterface } from 'nestjs-graphql-relay';
+import { NodeInterface } from '@honeybears/nestjs-graphql-relay';
 
 @ObjectType({ implements: () => [NodeInterface] })
 export class User extends NodeInterface {
@@ -76,7 +78,7 @@ The module uses `DiscoveryService` to automatically find all registered loaders 
 ```ts
 // user.service.ts
 import { Injectable } from '@nestjs/common';
-import { NodeLoader } from 'nestjs-graphql-relay';
+import { NodeLoader } from '@honeybears/nestjs-graphql-relay';
 import { User } from './user.entity';
 
 @Injectable()
@@ -106,6 +108,10 @@ query {
 
 ## Global ID
 
+### Automatic Serialization
+
+When you extend `NodeInterface`, the `id` field is **automatically serialized** to a Global ID through field middleware. You don't need to manually convert database IDs – just store and return raw IDs in your entities.
+
 ### Default Strategy (DefaultGlobalIdStrategy)
 
 Encodes and decodes `typename:id` as **Base64**.
@@ -120,7 +126,7 @@ Encodes and decodes `typename:id` as **Base64**.
 Implement the `GlobalIdStrategy` interface to replace the default behavior.
 
 ```ts
-import { GlobalIdStrategy, GlobalId } from 'nestjs-graphql-relay';
+import { GlobalIdStrategy, GlobalId } from '@honeybears/nestjs-graphql-relay';
 
 export class UuidGlobalIdStrategy implements GlobalIdStrategy {
   parse(gid: string): GlobalId {
