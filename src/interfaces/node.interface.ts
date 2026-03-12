@@ -1,4 +1,5 @@
 import { Field, ID, InterfaceType } from '@nestjs/graphql';
+import { GlobalIdSerializeMiddleware } from 'src/middlewares/global-id-serialize.middleware';
 
 @InterfaceType('Node', {
   resolveType: value => {
@@ -6,6 +7,6 @@ import { Field, ID, InterfaceType } from '@nestjs/graphql';
   },
 })
 export abstract class NodeInterface {
-  @Field(() => ID)
+  @Field(() => ID, { middleware: [GlobalIdSerializeMiddleware] })
   id!: string;
 }

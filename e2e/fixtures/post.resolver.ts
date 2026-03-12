@@ -1,8 +1,16 @@
-import { Query, Resolver, ResolveField, Parent } from '@nestjs/graphql';
+import {
+  Query,
+  Resolver,
+  ResolveField,
+  Parent,
+  Args,
+  ID,
+} from '@nestjs/graphql';
 import { Post } from './post.entity';
 import { User } from './user.entity';
 import { PostService } from './post.service';
 import { UserService } from './user.service';
+import { ParseGlobalIdPipe } from 'src/pipe/parse-global-id.pipe';
 
 @Resolver(() => Post)
 export class PostResolver {
@@ -17,7 +25,9 @@ export class PostResolver {
   }
 
   @Query(() => Post, { nullable: true })
-  async post(@Parent() id: string): Promise<Post | null> {
+  async post(
+    @Args({ name: 'id', type: () => ID }, ParseGlobalIdPipe) id: string,
+  ): Promise<Post | null> {
     return this.postService.findById(id);
   }
 

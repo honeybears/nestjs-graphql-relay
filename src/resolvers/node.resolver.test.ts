@@ -1,10 +1,9 @@
 import { NodeResolver } from './node.resolver';
-import { GlobalIdStrategyRegistry } from 'src/services/global-id.registry';
 import { NodeLoaderRegistry } from 'src/services/node-loader.registry';
+import { GlobalIdStrategyRegistry } from 'src/services/global-id.registry';
 
 describe('NodeResolver', () => {
   let resolver: NodeResolver;
-  let globalIdStrategyRegistry: jest.Mocked<GlobalIdStrategyRegistry>;
   let nodeLoaderRegistry: jest.Mocked<NodeLoaderRegistry>;
   let defaultMockStrategy: any;
 
@@ -14,17 +13,18 @@ describe('NodeResolver', () => {
       serialize: jest.fn(),
     };
 
-    globalIdStrategyRegistry = {
-      get: jest.fn().mockReturnValue(defaultMockStrategy),
-      set: jest.fn(),
-    } as any;
-
     nodeLoaderRegistry = {
       register: jest.fn(),
       getLoader: jest.fn(),
     } as any;
 
-    resolver = new NodeResolver(globalIdStrategyRegistry, nodeLoaderRegistry);
+    jest.spyOn(GlobalIdStrategyRegistry, 'get').mockReturnValue(defaultMockStrategy);
+
+    resolver = new NodeResolver(nodeLoaderRegistry);
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   describe('node', () => {
@@ -33,7 +33,6 @@ describe('NodeResolver', () => {
         typename: 'User',
         id: '123',
       });
-      defaultMockStrategy.serialize.mockReturnValue('VXNlcjoxMjM=');
 
       const mockLoader = {
         type: class User {},
@@ -53,9 +52,9 @@ describe('NodeResolver', () => {
       expect(defaultMockStrategy.parse).toHaveBeenCalledWith('encoded-id');
       expect(nodeLoaderRegistry.getLoader).toHaveBeenCalledWith('User');
       expect(mockLoader.instance.loadUser).toHaveBeenCalledWith('123');
-      expect(defaultMockStrategy.serialize).toHaveBeenCalledWith('User', '123');
+      // Note: serialize is handled by field middleware, not in the resolver
       expect(result).toEqual({
-        id: 'VXNlcjoxMjM=',
+        id: '123',
         name: 'John Doe',
         __typename: 'User',
       });
@@ -121,7 +120,6 @@ describe('NodeResolver', () => {
         typename: 'Post',
         id: '456',
       });
-      defaultMockStrategy.serialize.mockReturnValue('UG9zdDo0NTY=');
 
       const mockLoader = {
         type: class Post {},
@@ -138,9 +136,9 @@ describe('NodeResolver', () => {
 
       const result = await resolver.node('encoded-id');
 
-      expect(defaultMockStrategy.serialize).toHaveBeenCalledWith('Post', '456');
+      // Note: serialize is handled by field middleware, not in the resolver
       expect(result).toEqual({
-        id: 'UG9zdDo0NTY=',
+        id: '456',
         title: 'Test Post',
         __typename: 'Post',
       });
@@ -182,7 +180,6 @@ describe('NodeResolver', () => {
         typename: 'User',
         id: '123',
       });
-      defaultMockStrategy.serialize.mockReturnValue('VXNlcjoxMjM=');
 
       const mockLoader = {
         type: class User {},
@@ -201,9 +198,9 @@ describe('NodeResolver', () => {
 
       const result = await resolver.node('encoded-id');
 
-      expect(defaultMockStrategy.serialize).toHaveBeenCalledWith('User', '123');
+      // Note: serialize is handled by field middleware, not in the resolver
       expect(result).toEqual({
-        id: 'VXNlcjoxMjM=',
+        id: '123',
         name: 'Jane Doe',
         email: 'jane@example.com',
         age: 30,

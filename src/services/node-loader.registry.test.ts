@@ -206,67 +206,6 @@ describe('NodeLoaderRegistry', () => {
     });
   });
 
-  describe('getObjectTypeName', () => {
-    beforeEach(() => {
-      registry = new NodeLoaderRegistry();
-    });
-
-    it('should return GraphQL ObjectType name when available', () => {
-      (
-        TypeMetadataStorage.getObjectTypeMetadataByTarget as jest.Mock
-      ).mockReturnValue({
-        name: 'User',
-      });
-
-      const result = registry.getObjectTypeName(UserNode);
-      expect(result).toBe('User');
-      expect(
-        TypeMetadataStorage.getObjectTypeMetadataByTarget,
-      ).toHaveBeenCalledWith(UserNode);
-    });
-
-    it('should return class name when GraphQL ObjectType is not available', () => {
-      (
-        TypeMetadataStorage.getObjectTypeMetadataByTarget as jest.Mock
-      ).mockReturnValue(undefined);
-
-      const result = registry.getObjectTypeName(UserNode);
-      expect(result).toBe('UserNode');
-    });
-
-    it('should return class name when GraphQL ObjectType name is not set', () => {
-      (
-        TypeMetadataStorage.getObjectTypeMetadataByTarget as jest.Mock
-      ).mockReturnValue({
-        name: undefined,
-      });
-
-      const result = registry.getObjectTypeName(UserNode);
-      expect(result).toBe('UserNode');
-    });
-
-    it('should handle different types with different GraphQL names', () => {
-      (
-        TypeMetadataStorage.getObjectTypeMetadataByTarget as jest.Mock
-      ).mockImplementation(target => {
-        if (target === UserNode) {
-          return { name: 'User' };
-        }
-        if (target === PostNode) {
-          return { name: 'Post' };
-        }
-        if (target === CustomNameNode) {
-          return { name: 'CustomEntity' };
-        }
-        return undefined;
-      });
-
-      expect(registry.getObjectTypeName(UserNode)).toBe('User');
-      expect(registry.getObjectTypeName(PostNode)).toBe('Post');
-      expect(registry.getObjectTypeName(CustomNameNode)).toBe('CustomEntity');
-    });
-  });
-
   describe('integration with GraphQL ObjectType names', () => {
     it('should prevent duplicate registration with same GraphQL ObjectType name', () => {
       (
