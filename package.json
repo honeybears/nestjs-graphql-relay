@@ -7,7 +7,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "rimraf dist && tsc",
+    "build": "rimraf dist && tsc -p tsconfig.build.json",
     "prepublishOnly": "npm run test:all && npm run build",
     "test": "jest --testPathIgnorePatterns=e2e",
     "test:e2e": "jest --config jest.e2e.config.js",
